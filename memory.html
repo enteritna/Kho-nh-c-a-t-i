@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kho ảnh riêng</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --white: #ffffff;
+  --paper: #fffaf2;
+  --navy: #14213d;
+  --navy-soft: #5b6785;
+  --pink: #ffe3ea;
+  --pink-deep: #ffc2d1;
+  --sun: #ffd23f;
+  --sun-soft: #fff0b3;
+  --font: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { font-family: var(--font); background: var(--paper); color: var(--navy); font-size: 15px; line-height: 1.5; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--navy); outline-offset: 2px; }
+
+/* Nút */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 8px 16px; border: 2px solid var(--navy); border-radius: 999px; background: var(--white); font-weight: 600; }
+.btn:hover { background: var(--pink); }
+.btn.sun { background: var(--sun); }
+.btn.sun:hover { background: #ffc800; }
+.btn.danger { background: var(--navy); color: var(--white); }
+.btn.big { width: 100%; min-height: 48px; font-size: 16px; }
+.link { border: 0; background: none; padding: 4px 2px; color: var(--navy); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Màn hình khóa */
+.lock { position: relative; min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; overflow: hidden;
+  background: radial-gradient(circle at 12% 8%, var(--pink) 0, transparent 45%), radial-gradient(circle at 92% 92%, var(--sun-soft) 0, transparent 42%), var(--white); }
+.card { position: relative; width: min(400px, 100%); display: grid; gap: 6px; padding: 28px 24px; background: var(--white); border: 2px solid var(--navy); border-radius: 24px; box-shadow: 8px 8px 0 var(--pink-deep); }
+.sun { width: 54px; height: 54px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 8px var(--sun-soft); margin: 4px 0 14px; }
+.card h1 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.02em; }
+.sub { margin: 0 0 10px; color: var(--navy-soft); }
+.card label { margin-top: 8px; font-size: 13px; font-weight: 600; }
+.pw { display: flex; gap: 8px; }
+input[type="password"], input[type="text"] { width: 100%; min-height: 46px; padding: 8px 14px; border: 2px solid var(--navy); border-radius: 12px; background: var(--paper); letter-spacing: 0.12em; }
+input[type="text"].plain { letter-spacing: 0; }
+.peek { flex: none; min-width: 64px; border: 2px solid var(--navy); border-radius: 12px; background: var(--pink); font-weight: 600; }
+.msg { min-height: 22px; margin: 6px 0 8px; font-size: 13px; font-weight: 600; color: #b3123f; }
+.links { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.forgot { margin-top: 10px; padding: 12px; border-radius: 12px; background: var(--pink); font-size: 13px; }
+.forgot .row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.shake { animation: shake 0.4s; }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+/* Trang chính */
+.top { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 12px; padding: 12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); background: rgba(255, 255, 255, 0.94); border-bottom: 2px solid var(--pink-deep); backdrop-filter: blur(6px); }
+.top .ttl { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.top .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 5px var(--sun-soft); flex: none; }
+.top h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+.top .cnt { display: block; font-size: 12px; color: var(--navy-soft); font-weight: 500; }
+.top .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.feed { max-width: 760px; margin: 0 auto; padding: 8px max(12px, env(safe-area-inset-left)) 80px max(12px, env(safe-area-inset-right)); }
+.day { display: inline-block; margin: 22px 0 10px; padding: 3px 14px; border-radius: 999px; background: var(--pink); font-size: 13px; font-weight: 700; }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.tile { position: relative; aspect-ratio: 1; padding: 0; border: 0; border-radius: 8px; overflow: hidden; background: var(--pink); }
+.tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s; }
+.tile:hover img { transform: scale(1.05); }
+.empty { margin: 40px 0; padding: 40px 20px; text-align: center; border: 2px dashed var(--pink-deep); border-radius: 20px; background: var(--white); }
+.empty h2 { margin: 0 0 6px; }
+.empty p { margin: 0 0 16px; color: var(--navy-soft); }
+.veil { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; background: rgba(255, 240, 179, 0.92); border: 4px dashed var(--navy); font-size: 26px; font-weight: 700; pointer-events: none; }
+
+/* Trình xem ảnh */
+.viewer { position: fixed; inset: 0; z-index: 40; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: rgba(20, 33, 61, 0.97); color: var(--white); }
+.viewer .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top)); }
+.viewer .info { min-width: 0; font-size: 13px; }
+.viewer .info b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer .stage { position: relative; min-height: 0; }
+.viewer .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.viewer .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--sun); color: var(--navy); font-size: 22px; font-weight: 700; }
+.viewer .prev { left: 10px; }
+.viewer .next { right: 10px; }
+.viewer .foot { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.viewer .btn { border-color: var(--white); background: transparent; color: var(--white); }
+.viewer .btn:hover { background: rgba(255, 255, 255, 0.15); }
+.viewer .btn.sun { background: var(--sun); color: var(--navy); border-color: var(--sun); }
+.viewer .ask { font-weight: 600; }
+
+/* Hộp thoại QR */
+.modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgba(20, 33, 61, 0.55); }
+.modal .box { width: min(420px, 100%); max-height: 100%; overflow: auto; padding: 24px; background: var(--white); border: 2px solid var(--navy); border-radius: 22px; box-shadow: 8px 8px 0 var(--pink-deep); }
+.modal h2 { margin: 0 0 6px; }
+.modal p { margin: 6px 0; color: var(--navy-soft); font-size: 13px; }
+.modal .warn { padding: 8px 12px; border-radius: 10px; background: var(--sun-soft); color: var(--navy); font-weight: 500; }
+.qr { display: grid; place-items: center; min-height: 220px; margin: 12px 0; padding: 12px; border-radius: 16px; background: var(--paper); text-align: center; font-size: 13px; word-break: break-all; }
+.qr img { width: 100%; max-width: 240px; height: auto; image-rendering: pixelated; }
+.modal .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+.toast { position: fixed; z-index: 80; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: calc(100vw - 32px); padding: 10px 18px; border-radius: 999px; background: var(--navy); color: var(--white); font-weight: 500; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) { .shake { animation: none; } .tile img { transition: none; } }
+</style>
+</head>
+<body>
+
+<!-- BỨC TƯỜNG MÃ KHÓA -->
+<section id="lock" class="lock">
+  <form id="lockForm" class="card" autocomplete="off" novalidate>
+    <div class="sun" aria-hidden="true"></div>
+    <h1 id="lockTitle">Kho ảnh riêng</h1>
+    <p id="lockSub" class="sub"></p>
+    <label for="code" id="codeLabel">Mã khóa</label>
+    <div class="pw">
+      <input id="code" name="khoa" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="button" id="peek" class="peek" aria-pressed="false">Hiện</button>
+    </div>
+    <div id="code2Wrap" hidden>
+      <label for="code2">Nhập lại mã</label>
+      <input id="code2" name="khoa2" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <p id="lockMsg" class="msg" role="alert"></p>
+    <button id="lockBtn" class="btn sun big" type="submit">Mở khóa</button>
+    <div class="links">
+      <button type="button" class="link" id="qrOpen1">Mã QR mở trang này</button>
+      <button type="button" class="link" id="forgot">Quên mã?</button>
+    </div>
+    <div id="forgotBox" class="forgot" hidden>
+      <b>Đặt lại sẽ xóa mã khóa và toàn bộ ảnh trên thiết bị này.</b> Việc này không thể hoàn tác.
+      <div class="row">
+        <button type="button" class="btn" id="forgotNo">Hủy</button>
+        <button type="button" class="btn danger" id="forgotYes">Xóa tất cả và đặt lại</button>
+      </div>
+    </div>
+  </form>
+</section>
+
+<!-- TRANG CHÍNH (chỉ hiện sau khi nhập đúng mã) -->
+<div id="app" hidden>
+  <header class="top">
+    <div class="ttl">
+      <span class="dot" aria-hidden="true"></span>
+      <h1>Kho ảnh <span class="cnt" id="count">0 ảnh</span></h1>
+    </div>
+    <div class="acts">
+      <button type="button" class="btn sun" id="addBtn">+ Thêm ảnh</button>
+      <button type="button" class="btn" id="qrOpen2">Mã QR</button>
+      <button type="button" class="btn" id="relock">Khóa lại</button>
+    </div>
+  </header>
+  <main class="feed">
+    <div id="empty" class="empty" hidden>
+      <h2>Chưa có ảnh nào</h2>
+      <p>Bấm "Thêm ảnh" hoặc kéo ảnh thả vào trang này.</p>
+      <button type="button" class="btn sun" id="addBtn2">+ Thêm ảnh</button>
+    </div>
+    <div id="feed"></div>
+  </main>
+</div>
+
+<!-- TRÌNH XEM ẢNH -->
+<div id="viewer" class="viewer" role="dialog" aria-modal="true" aria-label="Xem ảnh" hidden>
+  <div class="bar">
+    <div class="info"><b id="vName"></b><span id="vMeta"></span></div>
+    <button type="button" class="btn" id="vClose">Đóng</button>
+  </div>
+  <div class="stage">
+    <img id="vImg" alt="">
+    <button type="button" class="nav prev" id="vPrev" aria-label="Ảnh trước">‹</button>
+    <button type="button" class="nav next" id="vNext" aria-label="Ảnh sau">›</button>
+  </div>
+  <div class="foot" id="vFoot"></div>
+</div>
+
+<!-- HỘP THOẠI MÃ QR -->
+<div id="qrModal" class="modal" role="dialog" aria-modal="true" aria-label="Mã QR" hidden>
+  <div class="box">
+    <h2>Mã QR mở trang khóa</h2>
+    <p>Quét bằng camera điện thoại để mở trang này. Người quét vẫn phải nhập đúng mã khóa mới vào được.</p>
+    <p class="warn" id="qrWarn" hidden>Bạn đang mở file trực tiếp từ máy nên đường dẫn này điện thoại không mở được. Hãy đưa trang lên mạng (Netlify, GitHub Pages) hoặc chạy bằng Live Server rồi dán đường dẫn thật vào ô bên dưới.</p>
+    <div class="qr" id="qrBox"></div>
+    <label for="qrUrl" style="font-size:13px;font-weight:600">Đường dẫn của trang</label>
+    <input id="qrUrl" type="text" class="plain" autocomplete="off" spellcheck="false">
+    <div class="row">
+      <button type="button" class="btn sun" id="qrMake">Tạo lại mã QR</button>
+      <button type="button" class="btn" id="qrCopy">Sao chép</button>
+      <button type="button" class="btn" id="qrClose">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file" accept="image/*" multiple hidden>
+<div id="veil" class="veil" hidden>Thả ảnh vào đây</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===== CÀI ĐẶT ===== */
+  // Dán đường dẫn công khai của trang vào đây (ví dụ "https://ten-ban.netlify.app").
+  // Để trống thì mã QR dùng đường dẫn đang mở.
+  var LINK_TRANG = '';
+
+  var $ = function (s) { return document.querySelector(s); };
+  var K_SALT = 'khoanh_salt', K_HASH = 'khoanh_hash';
+  var photos = [], order = [], vIdx = 0, vAsk = false;
+  var urls = {}, fails = 0, lockedUntil = 0, mode = 'login';
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  var toastTimer = 0;
+  function toast(t) {
+    var el = $('#toast'); el.textContent = t; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, 3200);
+  }
+
+  /* ===== MÃ KHÓA ===== */
+  function c53(str) {
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (var i = 0, ch; i < str.length; i++) {
+      ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+  }
+  async function hashCode(code, salt) {
+    var s = salt + ':' + code;
+    if (window.crypto && crypto.subtle) {
+      var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+      return 'sha256:' + Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
+    return 'c53:' + c53(s);
+  }
+  function randSalt() {
+    var a = new Uint8Array(12);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(a);
+    else for (var i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256);
+    return Array.from(a).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+  }
+  function setMsg(t) { $('#lockMsg').textContent = t || ''; }
+  function showLock() {
+    mode = lsGet(K_HASH) ? 'login' : 'setup';
+    var setup = mode === 'setup';
+    $('#lockTitle').textContent = setup ? 'Tạo mã khóa' : 'Kho ảnh riêng';
+    $('#lockSub').textContent = setup ? 'Lần đầu dùng: đặt một mã (ít nhất 4 ký tự) để khóa kho ảnh trên thiết bị này.' : 'Nhập mã khóa để mở kho ảnh.';
+    $('#codeLabel').textContent = setup ? 'Mã khóa mới' : 'Mã khóa';
+    $('#code2Wrap').hidden = !setup;
+    $('#lockBtn').textContent = setup ? 'Tạo mã và vào' : 'Mở khóa';
+    $('#forgot').hidden = setup;
+    $('#forgotBox').hidden = true;
+    $('#code').value = ''; $('#code2').value = ''; setMsg('');
+    $('#lock').hidden = false; $('#app').hidden = true;
+    setTimeout(function () { $('#code').focus(); }, 30);
+  }
+  $('#peek').addEventListener('click', function () {
+    var show = $('#code').type === 'password';
+    $('#code').type = $('#code2').type = show ? 'text' : 'password';
+    this.textContent = show ? 'Ẩn' : 'Hiện'; this.setAttribute('aria-pressed', String(show));
+  });
+  $('#lockForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var c = $('#code').value;
+    if (mode === 'setup') {
+      if (c.length < 4) { setMsg('Mã cần ít nhất 4 ký tự.'); return; }
+      if (c !== $('#code2').value) { setMsg('Hai lần nhập chưa giống nhau.'); return; }
+      var salt = randSalt();
+      var hh = await hashCode(c, salt);
+      if (!lsSet(K_SALT, salt) || !lsSet(K_HASH, hh)) { setMsg('Trình duyệt không cho lưu mã khóa. Hãy tắt chế độ ẩn danh rồi thử lại.'); return; }
+      enter();
+      return;
+    }
+    var wait = Math.ceil((lockedUntil - Date.now()) / 1000);
+    if (wait > 0) { setMsg('Nhập sai nhiều lần. Thử lại sau ' + wait + ' giây.'); return; }
+    var ok = (await hashCode(c, lsGet(K_SALT) || '')) === lsGet(K_HASH);
+    if (ok) { fails = 0; enter(); return; }
+    fails++;
+    var card = $('#lockForm'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    $('#code').value = ''; $('#code').focus();
+    if (fails >= 5) { lockedUntil = Date.now() + 30000; fails = 0; setMsg('Nhập sai 5 lần. Thử lại sau 30 giây.'); }
+    else setMsg('Mã chưa đúng, hãy thử lại.');
+  });
+  $('#forgot').addEventListener('click', function () { $('#forgotBox').hidden = false; });
+  $('#forgotNo').addEventListener('click', function () { $('#forgotBox').hidden = true; });
+  $('#forgotYes').addEventListener('click', async function () {
+    try { var db = await openDB(); db.close(); } catch (e) {}
+    dbp = null;
+    try { indexedDB.deleteDatabase('khoanh'); } catch (e) {}
+    lsDel(K_HASH); lsDel(K_SALT);
+    showLock();
+    toast('Đã xóa dữ liệu. Hãy tạo mã mới.');
+  });
+
+  /* ===== LƯU ẢNH (IndexedDB trong trình duyệt) ===== */
+  var dbp = null;
+  function openDB() {
+    if (dbp) return dbp;
+    dbp = new Promise(function (res, rej) {
+      if (!window.indexedDB) { rej(new Error('no-idb')); return; }
+      var r = indexedDB.open('khoanh', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('photos', { keyPath: 'id', autoIncrement: true }); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+    return dbp;
+  }
+  function store(mode2, fn) {
+    return openDB().then(function (db) {
+      return new Promise(function (res, rej) {
+        var t = db.transaction('photos', mode2), req = fn(t.objectStore('photos'));
+        t.oncomplete = function () { res(req && req.result); };
+        t.onerror = t.onabort = function () { rej(t.error); };
+      });
+    });
+  }
+  function makeThumb(file) {
+    return new Promise(function (res) {
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () {
+        var w = im.naturalWidth, h = im.naturalHeight;
+        if (!w || !h) { URL.revokeObjectURL(u); res(null); return; }
+        var k = Math.min(1, 480 / Math.max(w, h)), c = document.createElement('canvas');
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+        x.drawImage(im, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(u);
+        c.toBlob(function (b) { res(b); }, 'image/jpeg', 0.82);
+      };
+      im.onerror = function () { URL.revokeObjectURL(u); res(null); };
+      im.src = u;
+    });
+  }
+  function urlFor(p, kind) {
+    var key = p.id + kind;
+    if (!urls[key]) urls[key] = URL.createObjectURL(kind === 'thumb' && p.thumb ? p.thumb : p.blob);
+    return urls[key];
+  }
+  function dropUrls(id) {
+    ['thumb', 'full'].forEach(function (k) { if (urls[id + k]) { URL.revokeObjectURL(urls[id + k]); delete urls[id + k]; } });
+  }
+  function fmtBytes(n) {
+    var u = ['B', 'KB', 'MB', 'GB'], i = 0; n = n || 0;
+    while (n >= 1024 && i < 3) { n /= 1024; i++; }
+    return n.toLocaleString('vi-VN', { maximumFractionDigits: i < 2 ? 0 : 1 }) + ' ' + u[i];
+  }
+  function dayKey(ms) { return new Date(ms).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
+
+  async function enter() {
+    $('#code').value = ''; $('#code2').value = '';
+    $('#lock').hidden = true; $('#app').hidden = false;
+    window.scrollTo(0, 0);
+    try {
+      photos = (await store('readonly', function (s) { return s.getAll(); })) || [];
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
+    } catch (e) {
+      photos = [];
+      toast('Trình duyệt không cho lưu ảnh ở chế độ này (thử tắt chế độ ẩn danh).');
+    }
+    render();
+  }
+  function lockAgain() {
+    closeViewer(); $('#qrModal').hidden = true;
+    Object.keys(urls).forEach(function (k) { URL.revokeObjectURL(urls[k]); });
+    urls = {}; photos = []; order = [];
+    $('#feed').textContent = '';
+    showLock();
+  }
+
+  /* ===== CUỘN ẢNH: 3 ẢNH MỘT HÀNG, NHÓM THEO NGÀY ===== */
+  function render() {
+    var feed = $('#feed'); feed.textContent = '';
+    $('#count').textContent = photos.length + ' ảnh';
+    $('#empty').hidden = photos.length > 0;
+    var sorted = photos.slice().sort(function (a, b) { return b.createdAt - a.createdAt; });
+    order = sorted.map(function (p) { return p.id; });
+    var cur = null, row = null, today = dayKey(Date.now());
+    sorted.forEach(function (p, i) {
+      var k = dayKey(p.createdAt);
+      if (k !== cur) {
+        cur = k;
+        var hd = document.createElement('h2'); hd.className = 'day'; hd.textContent = k === today ? 'Hôm nay' : k;
+        feed.appendChild(hd);
+        row = document.createElement('div'); row.className = 'row3'; feed.appendChild(row);
+      }
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'tile';
+      b.setAttribute('aria-label', 'Mở ' + (p.name || 'ảnh'));
+      var im = document.createElement('img'); im.loading = 'lazy'; im.alt = p.name || 'Ảnh'; im.src = urlFor(p, 'thumb');
+      b.appendChild(im);
+      b.addEventListener('click', function () { openViewer(i); });
+      row.appendChild(b);
+    });
+  }
+
+  /* ===== THÊM ẢNH ===== */
+  async function addFiles(list) {
+    var files = Array.prototype.filter.call(list, function (f) { return /^image\//.test(f.type) || /\.(jpe?g|png|gif|webp|bmp|svg|avif|heic)$/i.test(f.name); });
+    if (!files.length) { toast('Không có tệp ảnh nào hợp lệ.'); return; }
+    var ok = 0;
+    for (var i = 0; i < files.length; i++) {
+      toast('Đang lưu ảnh ' + (i + 1) + '/' + files.length + '…');
+      try {
+        var f = files[i], thumb = await makeThumb(f);
+        var rec = { name: f.name || 'Ảnh', type: f.type, size: f.size, createdAt: Date.now() + i, blob: f, thumb: thumb };
+        rec.id = await store('readwrite', function (s) { return s.add(rec); });
+        photos.push(rec); ok++;
+      } catch (e) {
+        toast('Không lưu được "' + files[i].name + '". Bộ nhớ trình duyệt có thể đã đầy.');
+        break;
+      }
+    }
+    render();
+    if (ok) toast('Đã lưu ' + ok + ' ảnh.');
+  }
+  function pick() { $('#file').click(); }
+  $('#addBtn').addEventListener('click', pick);
+  $('#addBtn2').addEventListener('click', pick);
+  $('#file').addEventListener('change', function (e) { if (e.target.files.length) addFiles(e.target.files); e.target.value = ''; });
+  $('#relock').addEventListener('click', lockAgain);
+
+  var depth = 0;
+  function isFiles(e) { return e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0; }
+  function appOpen() { return !$('#app').hidden; }
+  window.addEventListener('dragenter', function (e) { if (appOpen() && isFiles(e)) { depth++; $('#veil').hidden = false; } });
+  window.addEventListener('dragover', function (e) { if (appOpen() && isFiles(e)) e.preventDefault(); });
+  window.addEventListener('dragleave', function (e) { if (appOpen() && isFiles(e)) { depth = Math.max(0, depth - 1); if (!depth) $('#veil').hidden = true; } });
+  window.addEventListener('drop', function (e) {
+    if (!isFiles(e)) return;
+    e.preventDefault(); depth = 0; $('#veil').hidden = true;
+    if (appOpen()) addFiles(e.dataTransfer.files);
+  });
+
+  /* ===== XEM ẢNH ===== */
+  function byId(id) { return photos.filter(function (p) { return p.id === id; })[0]; }
+  function openViewer(i) { vIdx = i; vAsk = false; $('#viewer').hidden = false; showViewer(); $('#vClose').focus(); }
+  function closeViewer() { $('#viewer').hidden = true; $('#vImg').removeAttribute('src'); vAsk = false; }
+  function showViewer() {
+    var p = byId(order[vIdx]);
+    if (!p) { closeViewer(); return; }
+    $('#vImg').src = urlFor(p, 'full'); $('#vImg').alt = p.name || 'Ảnh';
+    $('#vName').textContent = p.name || 'Ảnh';
+    $('#vMeta').textContent = (vIdx + 1) + '/' + order.length + ' · ' + dayKey(p.createdAt) + ' · ' + fmtBytes(p.size);
+    $('#vPrev').hidden = $('#vNext').hidden = order.length < 2;
+    var foot = $('#vFoot'); foot.textContent = '';
+    function btn(label, cls, fn) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + (cls || ''); b.textContent = label;
+      b.addEventListener('click', fn); foot.appendChild(b);
+    }
+    if (vAsk) {
+      var q = document.createElement('span'); q.className = 'ask'; q.textContent = 'Xóa vĩnh viễn ảnh này?'; foot.appendChild(q);
+      btn('Không', '', function () { vAsk = false; showViewer(); });
+      btn('Xóa', 'sun', removeCurrent);
+    } else {
+      btn('Tải xuống', 'sun', function () {
+        var a = document.createElement('a'); a.href = urlFor(p, 'full'); a.download = p.name || 'anh';
+        document.body.appendChild(a); a.click(); a.remove();
+      });
+      btn('Xóa', '', function () { vAsk = true; showViewer(); });
+    }
+  }
+  async function removeCurrent() {
+    var p = byId(order[vIdx]);
+    if (!p) return;
+    try {
+      await store('readwrite', function (s) { return s['delete'](p.id); });
+      dropUrls(p.id);
+      photos = photos.filter(function (x) { return x.id !== p.id; });
+      vAsk = false; render();
+      if (!order.length) { closeViewer(); toast('Đã xóa ảnh.'); return; }
+      vIdx = Math.min(vIdx, order.length - 1); showViewer(); toast('Đã xóa ảnh.');
+    } catch (e) { vAsk = false; showViewer(); toast('Không xóa được ảnh, hãy thử lại.'); }
+  }
+  function step(d) { if (order.length < 2) return; vIdx = (vIdx + d + order.length) % order.length; vAsk = false; showViewer(); }
+  $('#vClose').addEventListener('click', closeViewer);
+  $('#vPrev').addEventListener('click', function () { step(-1); });
+  $('#vNext').addEventListener('click', function () { step(1); });
+  document.addEventListener('keydown', function (e) {
+    if (!$('#qrModal').hidden) { if (e.key === 'Escape') $('#qrModal').hidden = true; return; }
+    if ($('#viewer').hidden) return;
+    if (e.key === 'Escape') closeViewer();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+
+  /* ===== MÃ QR DẪN ĐẾN TRANG KHÓA ===== */
+  function pageUrl() { return (LINK_TRANG || '').trim() || location.href.split('#')[0]; }
+  function drawQR(url) {
+    var box = $('#qrBox'); box.textContent = '';
+    $('#qrWarn').hidden = !/^file:/i.test(url);
+    if (!url) { box.textContent = 'Hãy nhập đường dẫn của trang.'; return; }
+    if (typeof qrcode !== 'function') { box.textContent = 'Chưa tải được thư viện tạo mã QR (cần kết nối mạng). Đường dẫn: ' + url; return; }
+    try {
+      var q = qrcode(0, 'M'); q.addData(url); q.make();
+      var im = new Image(); im.alt = 'Mã QR mở trang khóa'; im.src = q.createDataURL(6, 4);
+      box.appendChild(im);
+    } catch (e) { box.textContent = 'Đường dẫn quá dài để tạo mã QR.'; }
+  }
+  function loadQRLib() {
+    var srcs = ['https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js', 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'];
+    (function next(i) {
+      if (typeof qrcode === 'function' || i >= srcs.length) return;
+      var s = document.createElement('script'); s.src = srcs[i];
+      s.onload = function () { if (!$('#qrModal').hidden) drawQR($('#qrUrl').value.trim()); };
+      s.onerror = function () { next(i + 1); };
+      document.head.appendChild(s);
+    })(0);
+  }
+  function openQR() { $('#qrUrl').value = pageUrl(); $('#qrModal').hidden = false; drawQR(pageUrl()); $('#qrClose').focus(); }
+  $('#qrOpen1').addEventListener('click', openQR);
+  $('#qrOpen2').addEventListener('click', openQR);
+  $('#qrClose').addEventListener('click', function () { $('#qrModal').hidden = true; });
+  $('#qrMake').addEventListener('click', function () { drawQR($('#qrUrl').value.trim()); });
+  $('#qrCopy').addEventListener('click', function () {
+    var inp = $('#qrUrl');
+    function fallback() { inp.select(); try { document.execCommand('copy'); toast('Đã sao chép đường dẫn.'); } catch (e) { toast('Hãy chọn và sao chép thủ công.'); } }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(inp.value).then(function () { toast('Đã sao chép đường dẫn.'); }, fallback);
+    else fallback();
+  });
+
+  loadQRLib();
+  showLock();
+})();
+</script>
+</body>
+</html>
